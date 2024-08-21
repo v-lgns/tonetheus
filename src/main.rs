@@ -2,5 +2,6 @@ use tonetheus::ton::MyTonCtrl;
 
 fn main() {
     let mut mytonctrl = MyTonCtrl::new();
-    mytonctrl.status();
+    let status = mytonctrl.status();
+    dbg!(status);
 }

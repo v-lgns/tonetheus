@@ -2,18 +2,32 @@ use prometheus_client::encoding::EncodeLabelSet;
 use prometheus_client::metrics::family::Family;
 use prometheus_client::metrics::gauge::Gauge;
 
-// prometheus metrics label format
+// validator metrics label format
 #[derive(Clone, Debug, Hash, PartialEq, Eq, EncodeLabelSet)]
-pub struct Labels {
-    pub network: String,
-    pub validator_name: Option<String>,
+pub struct ValidatorLabels {
+    pub validator_name: String,
     pub validator_address: Option<String>,
+    pub network: Option<String>,
 }
 
-// prometheus metrics
+// validator metrics
 #[derive(Clone, Default)]
-pub struct Metrics {
-    pub validator_index: Family<Labels, Gauge>,
-    pub validator_balance: Family<Labels, Gauge>,
-    pub validator_outofsync: Family<Labels, Gauge>,
+pub struct ValidatorMetrics {
+    pub validator_index: Family<ValidatorLabels, Gauge>,
+    pub validator_balance: Family<ValidatorLabels, Gauge>,
+    pub validator_outofsync: Family<ValidatorLabels, Gauge>,
+}
+
+// pool metrics label format
+#[derive(Clone, Debug, Hash, PartialEq, Eq, EncodeLabelSet)]
+pub struct PoolLabels {
+    pub validator_name: String,
+    pub pool_address: Option<String>,
+}
+
+// pool metrics
+#[derive(Clone, Default)]
+pub struct PoolMetrics {
+    pub pool_active: Family<PoolLabels, Gauge>,
+    pub pool_balance: Family<PoolLabels, Gauge>,
 }
