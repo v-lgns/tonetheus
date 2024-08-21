@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use tonetheus::constants::METRICS_PREFIX;
 use tonetheus::http::{handle_metrics, State};
-use tonetheus::prometheus::ValidatorMetrics;
+use tonetheus::prometheus::{PoolMetrics, ValidatorMetrics};
 use tonetheus::utils::Args;
 
 use clap::Parser;
@@ -35,12 +35,25 @@ async fn main() -> tide::Result<()> {
         validator_metrics.validator_outofsync.clone(),
     );
 
+    let pool_metrics = PoolMetrics::default();
+    registry.register(
+        format!("{METRICS_PREFIX}_pool_active"),
+        "Is the current pool active?",
+        pool_metrics.pool_active.clone(),
+    );
+    registry.register(
+        format!("{METRICS_PREFIX}_pool_balance"),
+        "Pool balance",
+        pool_metrics.pool_balance.clone(),
+    );
+
     // initialize tide app
     tide::log::start();
     let mut app = tide::with_state(State {
         name: Arc::new(args.name),
         registry: Arc::new(registry),
         validator_metrics: Arc::new(validator_metrics),
+        pool_metrics: Arc::new(pool_metrics),
     });
 
     // register endpoints

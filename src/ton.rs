@@ -20,6 +20,7 @@ pub struct ValidatorStatus {
 // model pool data
 #[derive(Debug, Default)]
 pub struct PoolStatus {
+    pub name: String,
     pub address: String,
     pub active: bool,
     pub balance: f64,
@@ -79,12 +80,7 @@ impl MyTonCtrl {
             Regex::new(r"^Local validator out of sync: (.*) s").unwrap();
 
         // initialize attributes
-        let mut validator_status = ValidatorStatus::default();
-        // let mut network: String = "".into();
-        // let mut validator_index: i32 = -1;
-        // let mut validator_address: String = "".into();
-        // let mut validator_balance: f64 = 0.0;
-        // let mut validator_outofsync: i32 = 0;
+        let mut validator_data = ValidatorStatus::default();
 
         // parse metrics and break
         for line in reader.lines() {
@@ -93,19 +89,19 @@ impl MyTonCtrl {
             // get current network (mainnet|testnet)
             if let Some(captures) = pattern_network.captures(contents) {
                 if captures.len() > 1 {
-                    validator_status.network = utils::decolorize(&captures[1]);
+                    validator_data.network = utils::decolorize(&captures[1]);
                 }
             }
             // get validator address
             else if let Some(captures) = pattern_validator_address.captures(contents) {
                 if captures.len() > 1 {
-                    validator_status.address = utils::decolorize(&captures[1]);
+                    validator_data.address = utils::decolorize(&captures[1]);
                 }
             }
             // get validator index
             else if let Some(captures) = pattern_validator_index.captures(contents) {
                 if captures.len() > 1 {
-                    validator_status.index = utils::decolorize(&captures[1])
+                    validator_data.index = utils::decolorize(&captures[1])
                         .parse()
                         .expect("Unable to parse validator index!");
                 }
@@ -113,7 +109,7 @@ impl MyTonCtrl {
             // get validator balance
             else if let Some(captures) = pattern_validator_balance.captures(contents) {
                 if captures.len() > 1 {
-                    validator_status.balance = utils::decolorize(&captures[1])
+                    validator_data.balance = utils::decolorize(&captures[1])
                         .parse()
                         .expect("Unable to parse validator balance!");
                 }
@@ -123,7 +119,7 @@ impl MyTonCtrl {
             //       as it does not have an EOF (due to mytonctrl being a shell-like interface)
             else if let Some(captures) = pattern_validator_outofsync.captures(contents) {
                 if captures.len() > 1 {
-                    validator_status.outofsync = utils::decolorize(&captures[1])
+                    validator_data.outofsync = utils::decolorize(&captures[1])
                         .parse()
                         .expect("Unable to parse validator out of sync duration!");
                 }
@@ -131,6 +127,69 @@ impl MyTonCtrl {
             }
         }
 
-        validator_status
+        validator_data
+    }
+
+    pub fn pool_status(self: &mut Self) -> Vec<PoolStatus> {
+        // fetch stdin of the mytonctrl process
+        let stdin = self.process.stdin.as_mut().expect("Failed to open stdin!");
+
+        // fetch data from the process
+        stdin
+            .write_all(b"pools_list\n")
+            .expect("Failed to write to stdin!");
+
+        // wait for command output
+        thread::sleep(Duration::from_secs(constants::MYTONCTRL_CMD_DELAY));
+
+        // read output from the process
+        let stdout = self
+            .process
+            .stdout
+            .as_mut()
+            .ok_or("Failed to read from stdout!")
+            .unwrap();
+        let reader = BufReader::new(stdout);
+
+        // regexes
+        let pattern_header =
+            Regex::new(r"^Name\s+Status\s+Balance\s+Version\s+Address\s+$").unwrap();
+
+        // initialize attributes
+        let mut pool_data: Vec<PoolStatus> = vec![];
+
+        // flip to true when pool header pattern is encountered
+        // signifies the pool data region is being read in the buffer
+        let mut pool_encountered = false;
+
+        // parse metrics and break
+        for line in reader.lines() {
+            let contents = &utils::decolorize(&line.expect("Failed to read line!"));
+
+            // if buffer is in the pool data region, parse and store it
+            if pool_encountered {
+                let pool: Vec<&str> = contents.split(" ").filter(|a| !a.is_empty()).collect();
+                if !pool.is_empty() {
+                    pool_data.push(PoolStatus {
+                        name: pool[0].to_string(),
+                        active: pool[1] == "active",
+                        balance: pool[2].parse().unwrap(),
+                        address: pool[4].to_string(),
+                    })
+                }
+            }
+
+            // start reading pool data once header is encountered
+            if pattern_header.is_match(contents) {
+                pool_encountered = true;
+            }
+
+            // stop reading from buffer when the final empty line is reached
+            if pool_encountered && contents.is_empty() {
+                break;
+            }
+        }
+
+        pool_data
     }
 }

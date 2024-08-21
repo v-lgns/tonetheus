@@ -24,6 +24,7 @@ pub struct ValidatorMetrics {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, EncodeLabelSet)]
 pub struct PoolLabels {
     pub validator_name: String,
+    pub pool_name: Option<String>,
     pub pool_address: Option<String>,
 }
 
