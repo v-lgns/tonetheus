@@ -17,6 +17,6 @@ NOTE: Tonetheus **must** be run as the same user who installed the `mytonctrl` b
 
 ## Usage
 ```
-tonetheus -n $(hostname)
+tonetheus --name $(hostname)
 ```
 The name provided to tonetheus is solely for identifying the current validator machine. It will be visible in the exported metrics under the label `validator_name`.

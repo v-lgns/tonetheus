@@ -3,6 +3,7 @@ use std::process::{Child, Command, Stdio};
 use std::thread;
 use std::time::Duration;
 
+use log::info;
 use regex::Regex;
 
 use crate::{constants, utils};
@@ -41,8 +42,6 @@ impl MyTonCtrl {
 
         // wait for initialization
         thread::sleep(Duration::from_secs(constants::MYTONCTRL_INIT_DELAY));
-
-        // TODO: check if process was initialized properly, else fail
 
         Self { process }
     }
@@ -90,12 +89,14 @@ impl MyTonCtrl {
             if let Some(captures) = pattern_network.captures(contents) {
                 if captures.len() > 1 {
                     validator_data.network = utils::decolorize(&captures[1]);
+                    info!("Fetched validator network: {}", validator_data.network);
                 }
             }
             // get validator address
             else if let Some(captures) = pattern_validator_address.captures(contents) {
                 if captures.len() > 1 {
                     validator_data.address = utils::decolorize(&captures[1]);
+                    info!("Fetched validator address: {}", validator_data.address);
                 }
             }
             // get validator index
@@ -104,6 +105,7 @@ impl MyTonCtrl {
                     validator_data.index = utils::decolorize(&captures[1])
                         .parse()
                         .expect("Unable to parse validator index!");
+                    info!("Fetched validator index: {}", validator_data.index);
                 }
             }
             // get validator balance
@@ -112,6 +114,7 @@ impl MyTonCtrl {
                     validator_data.balance = utils::decolorize(&captures[1])
                         .parse()
                         .expect("Unable to parse validator balance!");
+                    info!("Fetched validator balance: {}", validator_data.balance);
                 }
             }
             // get validator out of sync duration in seconds
@@ -122,6 +125,10 @@ impl MyTonCtrl {
                     validator_data.outofsync = utils::decolorize(&captures[1])
                         .parse()
                         .expect("Unable to parse validator out of sync duration!");
+                    info!(
+                        "Fetched validator out of sync duration: {}",
+                        validator_data.outofsync
+                    );
                 }
                 break;
             }
@@ -175,7 +182,12 @@ impl MyTonCtrl {
                         active: pool[1] == "active",
                         balance: pool[2].parse().unwrap(),
                         address: pool[4].to_string(),
-                    })
+                    });
+                    info!(
+                        "Fetched pool {} with address {}",
+                        pool_data.last().unwrap().name,
+                        pool_data.last().unwrap().address
+                    );
                 }
             }
 
