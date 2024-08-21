@@ -1,0 +1,15 @@
+[Unit]
+Description=Tonetheus
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+Group=root
+Restart=on-failure
+Environment="TONE_HOST=0.0.0.0"
+Environment="TONE_PORT=8080"
+ExecStart=/usr/bin/tonetheus -n $(hostname) --host $TONE_HOST --port $TONE_PORT
+
+[Install]
+WantedBy=multi-user.target
