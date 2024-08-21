@@ -159,6 +159,7 @@ impl MyTonCtrl {
         let reader = BufReader::new(stdout);
 
         // regexes
+        let pattern_unknown = Regex::new(r"^Unknown command").unwrap();
         let pattern_header =
             Regex::new(r"^Name\s+Status\s+Balance\s+Version\s+Address\s+$").unwrap();
 
@@ -196,8 +197,8 @@ impl MyTonCtrl {
                 pool_encountered = true;
             }
 
-            // stop reading from buffer when the final empty line is reached
-            if contents.is_empty() {
+            // stop reading from buffer when no pools exist or the final empty line is reached
+            if pattern_unknown.is_match(contents) || contents.is_empty() {
                 break;
             }
         }
