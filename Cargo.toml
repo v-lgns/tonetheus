@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-std = { version = "1.8.0", features = ["attributes", "tokio1"] }
+clap = { version = "^4.5.4", features = ["derive"] }
 log = "0.4.21"
-regex = "1.10.5"
 prometheus-client = "0.22.2"
+regex = "1.10.5"
+tide = "0.16.0"
