@@ -197,7 +197,7 @@ impl MyTonCtrl {
             }
 
             // stop reading from buffer when the final empty line is reached
-            if pool_encountered && contents.is_empty() {
+            if contents.is_empty() {
                 break;
             }
         }
