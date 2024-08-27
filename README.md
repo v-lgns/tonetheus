@@ -5,8 +5,7 @@ On-chain monitoring for TON validators through Prometheus.
 ## Installation
 ### Binary
 ```
-sudo wget https://github.com/v-lgns/tonetheus/releases/latest/download/tonetheus -O /usr/bin/tonetheus
-chmod a+x /usr/bin/tonetheus
+sudo sh -c "wget https://github.com/v-lgns/tonetheus/releases/latest/download/tonetheus -O /usr/bin/tonetheus && chmod a+x /usr/bin/tonetheus"
 ```
 
 ### Systemd Service Unit
