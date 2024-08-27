@@ -102,9 +102,7 @@ impl MyTonCtrl {
             // get validator index
             else if let Some(captures) = pattern_validator_index.captures(contents) {
                 if captures.len() > 1 {
-                    validator_data.index = utils::decolorize(&captures[1])
-                        .parse()
-                        .expect("Unable to parse validator index!");
+                    validator_data.index = utils::decolorize(&captures[1]).parse().unwrap_or(-1);
                     info!("Fetched validator index: {}", validator_data.index);
                 }
             }
