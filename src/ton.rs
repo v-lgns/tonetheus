@@ -109,9 +109,7 @@ impl MyTonCtrl {
             // get validator balance
             else if let Some(captures) = pattern_validator_balance.captures(contents) {
                 if captures.len() > 1 {
-                    validator_data.balance = utils::decolorize(&captures[1])
-                        .parse()
-                        .expect("Unable to parse validator balance!");
+                    validator_data.balance = utils::decolorize(&captures[1]).parse().unwrap_or(0.0);
                     info!("Fetched validator balance: {}", validator_data.balance);
                 }
             }
