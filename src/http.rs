@@ -30,7 +30,6 @@ pub async fn handle_metrics(req: Request<State>) -> tide::Result {
     let validator_labels = ValidatorLabels {
         validator_name: state.name.to_string(),
         validator_address: validator_status.address.into(),
-        network: validator_status.network.into(),
     };
 
     // set validator metrics

@@ -11,7 +11,6 @@ use crate::{constants, utils};
 // model validator status data
 #[derive(Debug, Default)]
 pub struct ValidatorStatus {
-    pub network: String,
     pub index: i32,
     pub address: String,
     pub balance: f64,
@@ -69,7 +68,6 @@ impl MyTonCtrl {
         let reader = BufReader::new(stdout);
 
         // regexes
-        let pattern_network = Regex::new(r"^Network name: (.*)").unwrap();
         let pattern_validator_address =
             Regex::new(r"^Local validator wallet address: (.*)").unwrap();
         let pattern_validator_index = Regex::new(r"^Validator index: (.*)").unwrap();
@@ -85,15 +83,8 @@ impl MyTonCtrl {
         for line in reader.lines() {
             let contents = &line.expect("Failed to read line!");
 
-            // get current network (mainnet|testnet)
-            if let Some(captures) = pattern_network.captures(contents) {
-                if captures.len() > 1 {
-                    validator_data.network = utils::decolorize(&captures[1]);
-                    info!("Fetched validator network: {}", validator_data.network);
-                }
-            }
             // get validator address
-            else if let Some(captures) = pattern_validator_address.captures(contents) {
+            if let Some(captures) = pattern_validator_address.captures(contents) {
                 if captures.len() > 1 {
                     validator_data.address = utils::decolorize(&captures[1]);
                     info!("Fetched validator address: {}", validator_data.address);

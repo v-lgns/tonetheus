@@ -9,7 +9,6 @@ use prometheus_client::metrics::gauge::Gauge;
 pub struct ValidatorLabels {
     pub validator_name: String,
     pub validator_address: Option<String>,
-    pub network: Option<String>,
 }
 
 // validator metrics
